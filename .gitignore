@@ -1,0 +1,9 @@
+myenv/
+venv/
+.env/
+
+start.sh
+
+.vscode/
+.idea/
+.DS_Store
