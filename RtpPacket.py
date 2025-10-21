@@ -1,5 +1,8 @@
 import sys
+import logging
 from time import time
+
+logger = logging.getLogger('RtpPacket')
 
 HEADER_SIZE = 12
 
@@ -16,6 +19,11 @@ class RtpPacket:
         """Encode the RTP packet with header fields and payload."""
         timestamp = int(time())
         header = bytearray(HEADER_SIZE)
+
+        logger.debug(
+            f"Encoding RTP packet - seq: {seqnum}, payload size: {len(payload)}"
+        )
+
         # --------------
         # TO COMPLETE
         # --------------
@@ -29,8 +37,12 @@ class RtpPacket:
 
     def decode(self, byteStream):
         """Decode the RTP packet."""
+        logger.debug(f"Decoding RTP packet from {len(byteStream)} bytes")
         self.header = bytearray(byteStream[:HEADER_SIZE])
         self.payload = byteStream[HEADER_SIZE:]
+        logger.debug(
+            f"RTP packet decoded - seq: {self.seqNum()}, payload size: {len(self.payload)}"
+        )
 
     def version(self):
         """Return RTP version."""
