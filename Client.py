@@ -70,10 +70,10 @@ class Client:
         )
 
     def setupMovie(self):
-        """Setup button handler."""
-        print("[CLIENT] Setup button clicked")
-
-    # TODO
+        """Set up the movie for streaming"""
+        if(self.state == self.PLAYING  | self.state == self.PAUSE):
+            print(f"[CLIENT] Please TearDown current video before playing newVideo")
+        self.sendRtspRequest('SETUP')
 
     def exitClient(self):
         """Teardown button handler."""
@@ -114,23 +114,92 @@ class Client:
         """Connect to the Server. Start a new RTSP/TCP session."""
         print(f"[CLIENT] Connecting to server {self.serverAddr}:{self.serverPort}")
 
+        try:
+            # Create a TCP socket for RTSP communication
+            self.rtspSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            print("[CLIENT] Created RTSP socket")
+
+            # Connect to the server
+            self.rtspSocket.connect((self.serverAddr, self.serverPort))
+            print(
+                f"[CLIENT] Successfully connected to server {self.serverAddr}:{self.serverPort}"
+            )
+
+        except socket.error as e:
+            print(
+                f"[CLIENT] ERROR: Failed to connect to server {self.serverAddr}:{self.serverPort}"
+            )
+            print(f"[CLIENT] Socket error: {e}")
+            tkinter.messagebox.showwarning(
+                "Connection Failed", f"Connection to '{self.serverAddr}' failed."
+            )
+
+    def formatRequest(self, statusCode):
+        self.rtspSeq += 1
+        return f"{statusCode} {self.fileName} RTSP/1.0\nCSeq: {self.rtspSeq}\nTransport: RTP/UDP; client_port= {self.rtpPort}"
+
     # TODO
 
     def sendRtspRequest(self, requestCode):
         """Send RTSP request to the server."""
         print(f"[CLIENT] Sending RTSP request with code: {requestCode}")
-        # -------------
-        # TO COMPLETE
-        # -------------
+        request = self.formatRequest(requestCode)
+        self.rtspSocket.send(request.encode())
+        self.recvRtspReply()
 
     def recvRtspReply(self):
         """Receive RTSP reply from the server."""
         print("[CLIENT] Waiting for RTSP reply from server")
+        response = self.rtspSocket.recv(1024).decode()
+        self.parseRtspReply(response)
         # TODO
 
     def parseRtspReply(self, data):
         """Parse the RTSP reply from the server."""
         print("[CLIENT] Parsing RTSP reply from server")
+
+        try:
+            lines = data.split('\n')
+            
+            status_line = lines[0].split(' ')
+            status_code = status_line[1]
+            status_message = ' '.join(status_line[2:])
+            
+            cseq = None
+            session = None
+            
+            for line in lines[1:]:
+                if line.strip() == "":
+                    break
+                    
+                if line.startswith("CSeq: "):
+                    cseq = line.split(" ")[1].strip()
+                    
+                elif line.startswith("Session: "):
+                    session = line.split(" ")[1].strip()
+            
+            if status_code == "200":
+                if session and session != "":
+                    self.sessionId = session
+                    print(f"[CLIENT] Session ID updated: {self.sessionId}")
+                
+                print(f"[CLIENT] Request successful with CSEQ: {self.rtspSeq} and Session ID: {self.sessionId}") 
+            elif status_code == "404":
+                print("[CLIENT] ERROR: File not found")
+                tkinter.messagebox.showerror("Error", "File not found on server")
+                
+            elif status_code == "500":
+                print("[CLIENT] ERROR: Server internal error")
+                tkinter.messagebox.showerror("Error", "Server internal error")
+                
+            else:
+                print(f"[CLIENT] ERROR: Unknown status code {status_code}")
+                tkinter.messagebox.showerror("Error", f"Server returned error: {status_code} {status_message}")
+                
+        except Exception as e:
+            print(f"[CLIENT] ERROR: Failed to parse RTSP reply: {e}")
+            print(f"[CLIENT] Raw data: {repr(data)}")
+            tkinter.messagebox.showerror("Error", "Failed to parse server response")
         # TODO
 
     def openRtpPort(self):

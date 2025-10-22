@@ -25,6 +25,7 @@ class ServerWorker:
     def __init__(self, clientInfo):
         print("[SERVERWORKER] Initializing server worker for new client")
         self.clientInfo = clientInfo
+        print("[SERVERWORKER] Client Info: ", self.clientInfo)
 
     def run(self):
         print("[SERVERWORKER] Starting server worker thread")
@@ -35,7 +36,7 @@ class ServerWorker:
         print("[SERVERWORKER] Starting to listen for RTSP requests")
         connSocket = self.clientInfo["rtspSocket"][0]
         while True:
-            data = connSocket.recv(256)
+            data = connSocket.recv(1024)
             if data:
                 print("Data received:\n" + data.decode("utf-8"))
                 self.processRtspRequest(data.decode("utf-8"))
@@ -73,7 +74,9 @@ class ServerWorker:
 
                 # Generate a randomized RTSP session ID
                 self.clientInfo["session"] = randint(100000, 999999)
-                print(f"[SERVERWORKER] Generated session ID: {self.clientInfo['session']}")
+                print(
+                    f"[SERVERWORKER] Generated session ID: {self.clientInfo['session']}"
+                )
 
                 # Send RTSP reply
                 self.replyRtsp(self.OK_200, seq[1])
