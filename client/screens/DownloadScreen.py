@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
+import os
 
 import sys
 
@@ -72,9 +73,19 @@ class DownloadScreen(tk.Frame):
         selected_file = self.file_listbox.get(selected_index)
 
         # Choose file location and name to save
-        save_location = filedialog.asksaveasfilename(
-            title="Save file as",
-        )
+        # Try to preserve extension from the published name if present
+        ext = os.path.splitext(selected_file)[1]
+        dialog_kwargs = {
+            "title": "Save file as",
+            "initialfile": selected_file,
+        }
+        if ext:
+            dialog_kwargs.update({
+                "defaultextension": ext,
+                "filetypes": [(f"{ext.upper()} files", f"*{ext}"), ("All files", "*.*")],
+            })
+
+        save_location = filedialog.asksaveasfilename(**dialog_kwargs)
 
         if save_location:
             self.controller.client.download_file(selected_file, save_location)

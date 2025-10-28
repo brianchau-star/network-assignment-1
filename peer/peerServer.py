@@ -50,10 +50,8 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
                 delimiter = b"\r\n\r\n"
                 header_with_delimiter = header_bytes + delimiter
 
-                # Send header in chunks of up to 1024 bytes
-                for i in range(0, len(header_with_delimiter), 1024):
-                    chunk = header_with_delimiter[i:i+1024]
-                    self.request.sendall(chunk)
+                # Send header with delimiter (single send to avoid fragmentation)
+                self.request.sendall(header_with_delimiter)
 
                 # Sent data streams
                 with open(filepath, "rb") as file:

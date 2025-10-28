@@ -92,8 +92,14 @@ class Client:
                 client_socket.connect((ip, self.PEER_PORT))
                 reqJSON = json.dumps(req)
                 client_socket.sendall(bytes(reqJSON, "utf-8"))
+                # Read until header delimiter is found to avoid partial header issues
                 res = b''
-                res = client_socket.recv(1024)
+                while delimiter not in res:
+                    chunk = client_socket.recv(1024)
+                    if not chunk:
+                        break
+                    res += chunk
+
                 res_list = res.split(delimiter, 1)
                 header = res_list[0]
                 binary_content = len(res_list) > 1 and res_list[1] or b''
@@ -172,4 +178,3 @@ class Client:
 
     def shutdown(self):
         print("Shutting down...")
-

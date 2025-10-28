@@ -65,7 +65,7 @@ class MainScreen(tk.Frame):
         tk.Button(button_container, text="Refresh", command=self.fetch_peers).grid(row=0,column=3,pady=10, padx=10)
 
     def add_host(self):
-        ip = self.peer_entry.get()
+        ip = self.peer_entry.get().strip()
         if ip == "":
             messagebox.showerror("Error", "Hostname cannot be empty")
             return

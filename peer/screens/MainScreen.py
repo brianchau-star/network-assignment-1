@@ -62,7 +62,12 @@ class MainScreen(tk.Frame):
             self.popup.destroy()
             return
 
-        self.controller.client.publish(fname, location)
+        # If user-provided name is empty or lacks extension, default to the file's basename
+        import os
+        base_name = os.path.basename(location)
+        name_to_use = fname if (fname and ('.' in fname)) else base_name
+
+        self.controller.client.publish(name_to_use, location)
         self.popup.destroy()
         self.fetch_local_list()
 
@@ -84,5 +89,4 @@ class MainScreen(tk.Frame):
         # Create a button to close the popup
         close_button = tk.Button(self.popup, text="Close", command=self.popup.destroy)
         close_button.pack(pady=10)
-
 

@@ -2,6 +2,7 @@ import sqlite3
 import ping
 
 def add_host(ip):
+    ip = ip.strip()
     ping_count = ping.ping_host(ip)
     is_online = ping_count > 8 
     print("Ping count: " + str(ping_count))

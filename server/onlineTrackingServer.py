@@ -7,24 +7,24 @@ def get_hosts():
     cur = con.cursor()
     res = cur.execute("SELECT * FROM hosts")
     res = res.fetchall()
-    res = list(map(lambda obj: obj[0], res))
+    res = list(map(lambda obj: obj[0].strip(), res))
     return res
 
 def update_online(host):
     con = sqlite3.connect("server.db")
     cur = con.cursor()
-    cur.execute("UPDATE hosts SET online = TRUE WHERE ip = ?", (host,))
+    cur.execute("UPDATE hosts SET online = TRUE WHERE TRIM(ip) = ?", (host,))
     con.commit()
-    cur.execute("DELETE FROM file_host WHERE host = ?", (host,))
+    cur.execute("DELETE FROM file_host WHERE TRIM(host) = ?", (host,))
     con.commit()
     con.close()
 
 def update_offline(host):
     con = sqlite3.connect("server.db")
     cur = con.cursor()
-    cur.execute("UPDATE hosts SET online = FALSE WHERE ip = ?", (host,))
+    cur.execute("UPDATE hosts SET online = FALSE WHERE TRIM(ip) = ?", (host,))
     con.commit()
-    cur.execute("DELETE FROM file_host WHERE host = ?", (host,))
+    cur.execute("DELETE FROM file_host WHERE TRIM(host) = ?", (host,))
     con.commit()
     con.close()
 
@@ -33,7 +33,10 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
         self.request.settimeout(10)
         while True:
             try:
-                req = str(self.request.recv(1024), 'utf8')
+                raw = self.request.recv(1024)
+                if not raw:
+                    break
+                req = str(raw, 'utf8')
                 print(self.client_address, req)
                 reqObj = json.loads(req)
                 peerAddress = self.client_address

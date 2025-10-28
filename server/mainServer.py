@@ -10,7 +10,7 @@ def get_online_hosts():
     cur = con.cursor()
     res = cur.execute("SELECT * FROM hosts WHERE online = TRUE")
     res = res.fetchall()
-    res = list(map(lambda obj: obj[0], res))
+    res = list(map(lambda obj: obj[0].strip(), res))
     con.close()
     return res
     
@@ -26,14 +26,14 @@ def get_host_from_file(file):
     cur = con.cursor()
     res = cur.execute("SELECT host FROM file_host WHERE file=?", (file,))
     res = res.fetchall()
-    res = list(map(lambda obj: obj[0], res))
+    res = list(map(lambda obj: obj[0].strip(), res))
     con.close()
     return res
 
 def delete_file_host(host, file):
     con = sqlite3.connect("server.db")
     cur = con.cursor()
-    res = cur.execute("DELETE FROM file_host WHERE host=? AND file=?", (host,file))
+    res = cur.execute("DELETE FROM file_host WHERE TRIM(host)=? AND file=?", (host,file))
     con.commit()
     con.close()
     return res
@@ -53,24 +53,24 @@ def get_hosts_info():
     cur = con.cursor()
     res = cur.execute("SELECT * FROM hosts")
     res = res.fetchall()
-    res = list(map(lambda obj: (obj[0], obj[1]), res))
+    res = list(map(lambda obj: (obj[0].strip(), obj[1]), res))
     return res
 
 def update_online(host):
     con = sqlite3.connect("server.db")
     cur = con.cursor()
-    cur.execute("UPDATE hosts SET online = TRUE WHERE ip = ?", (host,))
+    cur.execute("UPDATE hosts SET online = TRUE WHERE TRIM(ip) = ?", (host,))
     con.commit()
-    cur.execute("DELETE FROM file_host WHERE host = ?", (host,))
+    cur.execute("DELETE FROM file_host WHERE TRIM(host) = ?", (host,))
     con.commit()
     con.close()
 
 def update_offline(host):
     con = sqlite3.connect("server.db")
     cur = con.cursor()
-    cur.execute("UPDATE hosts SET online = FALSE WHERE ip = ?", (host,))
+    cur.execute("UPDATE hosts SET online = FALSE WHERE TRIM(ip) = ?", (host,))
     con.commit()
-    cur.execute("DELETE FROM file_host WHERE host = ?", (host,))
+    cur.execute("DELETE FROM file_host WHERE TRIM(host) = ?", (host,))
     con.commit()
     con.close()
 
