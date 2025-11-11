@@ -310,10 +310,11 @@ class Client():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     
-    parser.add_argument('--hostname', dest='hostname', type=str, help='Server host name')
+    parser.add_argument('--hostname', dest='hostname', type=str, help='Client hostname')
+    parser.add_argument('--server_host', dest='server_host', type=str, default='10.128.17.239', help='Server host address')
     
     args = parser.parse_args()
     
-    client = Client(hostname=args.hostname, server_host='10.128.17.239')
+    client = Client(hostname=args.hostname, server_host=args.server_host)
     
     client.start()

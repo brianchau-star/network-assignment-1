@@ -4,6 +4,7 @@ import sys
 import os
 import time
 import copy
+import argparse
 from server_helper import parse_server_cmd, parse_client_request
 
 class Server:
@@ -433,5 +434,11 @@ class Server:
         client_soc.sendall(message.encode())
         
 if __name__ == '__main__':
-    server = Server(server_host='10.128.17.239')
+    parser = argparse.ArgumentParser()
+    
+    parser.add_argument('--server_host', dest='server_host', type=str, default='10.128.17.239', help='Server host address')
+    
+    args = parser.parse_args()
+    
+    server = Server(server_host=args.server_host)
     server.start()
