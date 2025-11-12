@@ -274,7 +274,38 @@ class Server:
             if uploader_address == address:
                 return client_name
             
-    def fetch_peers (self, payload):        
+    def check_peer_alive(self, uploader_address):
+        """
+        Kiểm tra peer còn sống không
+        
+        Args:
+            uploader_address (tuple): (host, upload_port)
+        
+        Returns:
+            bool: True nếu peer còn sống
+        """
+        try:
+            # Tìm client_name và socket_address từ uploader_address
+            for client_name, client_addresses in self.client_name_lists.items():
+                peer_uploader_addr = (client_addresses['host'], str(client_addresses['upload_port']))
+                
+                if peer_uploader_addr == uploader_address:
+                    socket_address = (client_addresses['host'], client_addresses['port'])
+                    
+                    # Kiểm tra socket có tồn tại
+                    if not self.is_client_socket_exists(socket_address):
+                        return False
+                    
+                    # Reuse test_connection
+                    peer_socket = self.client_socket_lists[socket_address]
+                    return self.test_connection(peer_socket, socket_address)
+            
+            return False
+            
+        except Exception:
+            return False
+
+    def fetch_peers(self, payload):        
         file_name, address = payload
         
         client = self.client_socket_lists[address]
@@ -283,7 +314,7 @@ class Server:
             client.sendall(f'No peer has file {file_name}.'.encode())
             return
         
-        res = ['PEERS'] # keyword
+        res = ['PEERS']
         res.append(file_name)
         
         for uploader_address, file_path in self.file_references[file_name]:
@@ -295,13 +326,19 @@ class Server:
             if is_client_fetching_itself:
                 continue
             
+            if not self.check_peer_alive(uploader_address):
+                continue
+            
             client_name = self.get_client_name(uploader_address)
-            res.append(f'{client_name} {uploader_address[0]} {uploader_address[1]} {file_path}')       
+            res.append(f'{client_name} {uploader_address[0]} {uploader_address[1]} {file_path}')
+        
+
+        if len(res) <= 2:
+            client.sendall(f'No available peer has file {file_name}.'.encode())
+            return
         
         message = '\n'.join(res)
-        
         client.sendall(message.encode())
-
     def isCurrentClient(self, address, uploader_address):        
         """
             Check if the current client is fetching or executing the command itself
