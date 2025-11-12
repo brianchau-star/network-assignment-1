@@ -224,23 +224,24 @@ class Server:
             payload (_type_): file_name, file_path, uploader_address
         """
         self.lock.acquire()
-        
-        file_name, file_path, uploader_address = payload
-        
-        # Work around: file_path will be destructured from self.file_references[file_name]. So we need a cloned variable
-        path = file_path
-        
-        if not self.file_references.keys().__contains__(file_name):
-            self.file_references[file_name] = []
+        try: 
+            file_name, file_path, uploader_address = payload
             
-        for client_address, file_path in self.file_references[file_name]:
-            if path == file_path and client_address == uploader_address:
-                print(f'File {file_name} at {path} directory has already been recorded.\n')
-                return
+            # Work around: file_path will be destructured from self.file_references[file_name]. So we need a cloned variable
+            path = file_path
+            
+            if not self.file_references.keys().__contains__(file_name):
+                self.file_references[file_name] = []
+                
+            for client_address, file_path in self.file_references[file_name]:
+                if path == file_path and client_address == uploader_address:
+                    print(f'File {file_name} at {path} directory has already been recorded.\n')
+                    return
+            
+            self.file_references[file_name].append((uploader_address, path))
         
-        self.file_references[file_name].append((uploader_address, path))
-        
-        self.lock.release()
+        finally:
+            self.lock.release()
         
     def discover_client (self, hostname):
         files_information = []
@@ -473,7 +474,19 @@ class Server:
         
         message = '\n'.join(files)
         client_soc.sendall(message.encode())
+    def handle_client_disconnect(self, payload):
+        address = payload
         
+        print(f'Client {address} is disconnecting...\n> ', end='')
+        
+        self.remove_client(address)
+        
+
+        if self.is_client_socket_exists(address):
+            try:
+                self.client_socket_lists[address].close()
+            except:
+                pass 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     

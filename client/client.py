@@ -342,11 +342,24 @@ class Client():
 
     def shutdown(self, payload = None):
         print('\nShutting Down...')
-
         try:
-            sys.exit(0)
-        except SystemExit:
-            os._exit(0)
+                message = 'DISCONNECT\n'
+                self.server.send(message.encode())
+                
+                # Đóng socket
+                self.server.close()
+                
+                # Đóng upload socket
+                if hasattr(self, 'upload_socket'):
+                    self.upload_socket.close()
+                    
+        except Exception as e:
+                print(f'Error during shutdown: {e}')
+        finally:
+                try:
+                    sys.exit(0)
+                except SystemExit:
+                    os._exit(0)
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     

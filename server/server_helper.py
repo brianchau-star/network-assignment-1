@@ -94,6 +94,10 @@ def parse_client_request (request: str, address):
     elif request_method == 'FETCH_ALL_FILE_INFO':
         payload = address
         method = 'fetch_all_available_files'
+    
+    elif request_method == 'DISCONNECT':
+        payload = address
+        method = 'handle_client_disconnect'
         
     else:
         raise MyException('Invalid request.')
