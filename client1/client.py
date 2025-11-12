@@ -285,9 +285,16 @@ class Client():
                 return
             
             if file_path == '.':
-                path = file_name
+                # Lấy thư mục chứa script client
+                script_dir = os.path.dirname(os.path.abspath(__file__))
+                path = os.path.join(script_dir, file_name)
             else:
                 path = file_path + '/' + file_name
+            
+            # Kiểm tra file có tồn tại không
+            if not os.path.exists(path):
+                conn.send(f'File {file_name} not found at {path}'.encode())
+                return
             
             header = 'OS: %s\n' % (platform.platform())
             header += 'Content-Length: %s\n' % (os.path.getsize(path))
@@ -325,7 +332,6 @@ class Client():
             self.shutdown()
         finally:
             conn.close()
-
     def list_peers(self, payload = None):
         message = 'FETCH_AVAILABLE_PEERS\n'
         self.server.send(message.encode())
