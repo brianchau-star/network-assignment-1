@@ -50,6 +50,10 @@ class Server:
         print('Starting the server on %s:%s' % (self.server_host, self.server_port))
 
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        
+        # Allow reuse of address to avoid "Address already in use" error
+        self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        
         self.server.bind((self.server_host, self.server_port))
         self.server.listen(5)
 

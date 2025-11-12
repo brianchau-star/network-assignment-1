@@ -14,7 +14,7 @@ class Client():
     def __init__(
         self, 
         hostname,
-        server_host='192.168.2.189', 
+        server_host, 
         server_port=7734, 
 
     ):
@@ -129,6 +129,7 @@ class Client():
         
         message = 'PUBLISH_FILE_INFO\n' + file_path + '\n' + file_name + '\n' + str(self.upload_port)
         self.server.send(message.encode())
+        print(f'Published file {file_name} from {file_path}\n')
     
     def create_folder_if_not_exists(self, file_path):
         if(file_path == '.'):
@@ -137,7 +138,10 @@ class Client():
         Path(file_path).mkdir(parents=True, exist_ok=True)
         
     def check_file_exist (self, file_path, file_name):
-        path = file_path + '/' + file_name
+        if file_path == '.':
+            path = file_name
+        else:
+            path = file_path + '/' + file_name
         return Path(path).exists()
     
     def fetch_file_info(self, payload):
@@ -179,35 +183,55 @@ class Client():
         try:
             start_time = time.time()
             peer_socket.connect((host, port))
-
             
             message = 'DOWNLOAD_FILE\n' + file_path + '\n' + file_name
             peer_socket.send(message.encode())
             
-            res_header = peer_socket.recv(1024).decode("utf-8")
+            # Receive and parse header
+            header_data = b''
+            while b'\n\n' not in header_data:
+                chunk = peer_socket.recv(1024)
+                if not chunk:
+                    break
+                header_data += chunk
             
-            if res_header:
-                print(res_header)
+            # Split header and potential file data
+            header_end = header_data.find(b'\n\n')
+            if header_end != -1:
+                header = header_data[:header_end].decode("utf-8")
+                first_file_chunk = header_data[header_end + 2:]
+            else:
+                header = header_data.decode("utf-8")
+                first_file_chunk = b''
+            
+            if header:
+                print(header)
+            
+            # Save to current directory
+            save_path = file_name
+            
+            bytes_received = 0
+            with open(save_path, 'wb') as f:
+                if first_file_chunk:
+                    f.write(first_file_chunk)
+                    bytes_received += len(first_file_chunk)
                 
-            path = file_path + '/' + file_name
-            
-            self.create_folder_if_not_exists(file_path)
-            
-            with open(path, 'wb') as f:
-                data = peer_socket.recv(1024)
-                while data:
-                    f.write(data)
+                while True:
                     data = peer_socket.recv(1024)
+                    if not data:
+                        break
+                    bytes_received += len(data)
+                    f.write(data)
                 
                 f.flush()
             end_time = time.time()
             
             download_time = end_time - start_time
-            print(f'\rDownloaded file {file_name} from {hostname} in {download_time}s.', flush=True)
+            print(f'\rDownloaded file {file_name} ({bytes_received} bytes) from {hostname} in {download_time:.2f}s to ./{save_path}', flush=True)
             
             peer_socket.close()
         except Exception as e:
-            print(e)
+            print(f'Error downloading file: {e}')
             
     def init_upload(self):
         try:
@@ -243,7 +267,13 @@ class Client():
             if not data:
                 return
             
-            method, file_path, file_name = data.split()
+            lines = data.splitlines()
+            if len(lines) < 3:
+                return
+            
+            method = lines[0].strip()
+            file_path = lines[1].strip()
+            file_name = lines[2].strip()
             
             if method != 'DOWNLOAD_FILE':
                 return
@@ -254,16 +284,20 @@ class Client():
                 conn.send(f'File {file_name} does not exist at {file_path}'.encode())
                 return
             
-            path = file_path + '/' + file_name
+            if file_path == '.':
+                path = file_name
+            else:
+                path = file_path + '/' + file_name
             
             header = 'OS: %s\n' % (platform.platform())
             header += 'Content-Length: %s\n' % (os.path.getsize(path))
-            header += 'Content-Type: %s\n' % (
+            header += 'Content-Type: %s\n\n' % (
                     mimetypes.MimeTypes().guess_type(path)[0])
             
             print('File metadata: \n' + header)
             
             conn.send(header.encode())
+            
             try:
                 print('Uploading...')
 
@@ -276,7 +310,7 @@ class Client():
                         conn.sendall(to_send)
                         to_send = file.read(1024)
 
-                print('Uploading successfully')
+                print(f'Uploading successfully ({send_length} bytes)')
                 
                 inputStr = 'Select option > ' if self.is_selecting_peer else '> '
                 print(inputStr, end='', flush=True)
