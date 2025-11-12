@@ -549,9 +549,14 @@ class ClientGUI(tk.Tk):
         self.client_running = False
         if self.client_instance:
             try:
-                self.client_instance.server.close()
-            except:
-                pass
+                self.client_instance.shutdown()
+            except Exception as e:
+                self.log_message(f"Error during shutdown: {e}")
+                try:
+                    # Fallback: chỉ đóng socket
+                    self.client_instance.server.close()
+                except:
+                    pass
         self.after(500, self.destroy)
 
     def on_publish_file_info(self):

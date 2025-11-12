@@ -361,7 +361,7 @@ class Server:
     
     def remove_client(self, address):        
         self.lock.acquire()
-        
+        print('this is called')
         self.remove_file_reference(address)
         self.remove_client_name(address)
         self.remove_client_socket(address)
