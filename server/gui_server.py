@@ -219,18 +219,18 @@ class ServerGUI(tk.Tk):
         self.log_message("⚙️ fetch_peers - handled internally by server")
 
     def on_fetch_available_peers(self):
-        self.log_message("⚙️ fetch_available_peers - handled internally by server")
+        self.log_message("fetch_available_peers - handled internally by server")
 
     def on_fetch_all_available_files(self):
         if self.server_instance:
             file_count = len(self.server_instance.file_references)
-            self.log_message(f"📂 Total files available: {file_count}")
+            self.log_message(f"Total files available: {file_count}")
 
     def on_test_connection(self):
         self.log_message("🔌 test_connection - handled internally by server")
 
     def on_remove_client(self):
-        self.log_message("❌ remove_client - handled internally by server")
+        self.log_message("remove_client - handled internally by server")
 
     def setup_styles(self):
         """Configure custom styles for widgets"""
@@ -300,7 +300,7 @@ class ServerGUI(tk.Tk):
     # ================== BUILD SERVER UI ==================
     def create_widgets(self):
         # Khung thông tin server / trạng thái
-        info_frame = ttk.LabelFrame(self, text="🖥️ Server Info / Status", 
+        info_frame = ttk.LabelFrame(self, text="Server Info / Status", 
                                    style='Info.TLabelframe', padding=15)
         info_frame.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
 
@@ -310,7 +310,7 @@ class ServerGUI(tk.Tk):
         status_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
         # Khung CLI commands
-        cli_frame = ttk.LabelFrame(self, text="💻 Server CLI Commands", 
+        cli_frame = ttk.LabelFrame(self, text="Server CLI Commands", 
                                   style='CLI.TLabelframe', padding=15)
         cli_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
 
@@ -321,74 +321,27 @@ class ServerGUI(tk.Tk):
         self.server_hostname_entry = ttk.Entry(cli_frame, width=25)
         self.server_hostname_entry.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
-        ping_button = ttk.Button(cli_frame, text="📡 Ping", command=self.on_ping,
+        ping_button = ttk.Button(cli_frame, text="Ping", command=self.on_ping,
                                 style='Secondary.TButton')
         ping_button.grid(row=0, column=2, padx=5, pady=5)
 
-        discover_button = ttk.Button(cli_frame, text="🔍 Discover", command=self.on_discover,
+        discover_button = ttk.Button(cli_frame, text="Discover", command=self.on_discover,
                                     style='Secondary.TButton')
         discover_button.grid(row=0, column=3, padx=5, pady=5)
 
         # List, Exit
-        list_button = ttk.Button(cli_frame, text="📋 List Clients", command=self.on_list_clients,
+        list_button = ttk.Button(cli_frame, text="List Clients", command=self.on_list_clients,
                                 style='Primary.TButton')
         list_button.grid(row=1, column=0, padx=5, pady=5, sticky="w")
 
-        exit_button = ttk.Button(cli_frame, text="🚪 Exit Server", command=self.on_exit_server,
+        exit_button = ttk.Button(cli_frame, text="Exit Server", command=self.on_exit_server,
                                 style='Danger.TButton')
         exit_button.grid(row=1, column=3, padx=5, pady=5, sticky="e")
 
         cli_frame.columnconfigure(1, weight=1)
 
-        # Khung Internal Methods
-        internal_frame = ttk.LabelFrame(self, text="⚙️ Server Internal Functions", 
-                                       style='Internal.TLabelframe', padding=15)
-        internal_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
-
-        ttk.Button(
-            internal_frame, text="🔧 Set Client Addresses", command=self.on_set_client_addresses,
-            style='Warning.TButton'
-        ).grid(row=0, column=0, padx=5, pady=5, sticky="ew")
-
-        ttk.Button(
-            internal_frame, text="📝 Publish Filename", command=self.on_publish_filename,
-            style='Warning.TButton'
-        ).grid(row=0, column=1, padx=5, pady=5, sticky="ew")
-
-        ttk.Button(
-            internal_frame, text="👥 Fetch Peers", command=self.on_fetch_peers,
-            style='Warning.TButton'
-        ).grid(row=1, column=0, padx=5, pady=5, sticky="ew")
-
-        ttk.Button(
-            internal_frame,
-            text="✅ Fetch Available Peers",
-            command=self.on_fetch_available_peers,
-            style='Warning.TButton'
-        ).grid(row=1, column=1, padx=5, pady=5, sticky="ew")
-
-        ttk.Button(
-            internal_frame,
-            text="📂 Fetch All Available Files",
-            command=self.on_fetch_all_available_files,
-            style='Warning.TButton'
-        ).grid(row=2, column=0, padx=5, pady=5, sticky="ew")
-
-        ttk.Button(
-            internal_frame, text="🔌 Test Connection", command=self.on_test_connection,
-            style='Warning.TButton'
-        ).grid(row=2, column=1, padx=5, pady=5, sticky="ew")
-
-        ttk.Button(
-            internal_frame, text="❌ Remove Client", command=self.on_remove_client,
-            style='Danger.TButton'
-        ).grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
-
-        for col in range(2):
-            internal_frame.columnconfigure(col, weight=1)
-
         # Khung danh sách clients
-        clients_frame = ttk.LabelFrame(self, text="👥 Connected Clients", 
+        clients_frame = ttk.LabelFrame(self, text="Connected Clients", 
                                       style='CLI.TLabelframe', padding=10)
         clients_frame.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
 
@@ -411,7 +364,7 @@ class ServerGUI(tk.Tk):
         self.clients_tree.pack(fill="both", expand=True)
 
         # Khung danh sách file
-        files_frame = ttk.LabelFrame(self, text="📁 Files on Selected Client / All Files", 
+        files_frame = ttk.LabelFrame(self, text="Files on Selected Client / All Files", 
                                     style='Internal.TLabelframe', padding=10)
         files_frame.grid(row=2, column=1, padx=10, pady=10, sticky="nsew")
 
@@ -432,7 +385,7 @@ class ServerGUI(tk.Tk):
         self.files_tree.pack(fill="both", expand=True)
 
         # Khung log
-        log_frame = ttk.LabelFrame(self, text="📊 Server Log", style='Info.TLabelframe', padding=10)
+        log_frame = ttk.LabelFrame(self, text="Server Log", style='Info.TLabelframe', padding=10)
         log_frame.grid(row=3, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
 
         self.log_text = ScrolledText(log_frame, height=8, state="normal",

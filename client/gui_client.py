@@ -40,7 +40,7 @@ class PeerSelectionDialog(tk.Toplevel):
         
         ttk.Label(
             header_frame,
-            text=f"📥 Select peer to download: {file_name}",
+            text=f"Select peer to download: {file_name}",
             font=('Helvetica', 12, 'bold')
         ).pack()
         
@@ -91,14 +91,14 @@ class PeerSelectionDialog(tk.Toplevel):
         
         ttk.Button(
             button_frame,
-            text="✅ Download",
+            text="Download",
             command=self.on_download_click,
             style='Success.TButton'
         ).pack(side=tk.LEFT, padx=5)
         
         ttk.Button(
             button_frame,
-            text="❌ Cancel",
+            text="Cancel",
             command=self.on_cancel_click,
             style='Danger.TButton'
         ).pack(side=tk.LEFT, padx=5)
@@ -298,14 +298,14 @@ class ClientGUI(tk.Tk):
             self.client_thread.start()
             
             self.client_running = True
-            self.log_message(f"✅ Client '{hostname}' started successfully")
-            self.log_message(f"🔗 Connecting to server: {server_host}:{server_port}")
+            self.log_message(f"Client '{hostname}' started successfully")
+            self.log_message(f"Connecting to server: {server_host}:{server_port}")
             
             # Update upload port when available
             self.after(2000, self.update_upload_port)
             
         except Exception as e:
-            self.log_message(f"❌ Error starting client: {e}")
+            self.log_message(f"Error starting client: {e}")
     
     def redirect_client_output(self):
         """Redirect client's print statements to GUI"""
@@ -376,7 +376,7 @@ class ClientGUI(tk.Tk):
                     break
                     
         except Exception as e:
-            self.log_message(f"❌ Client error: {e}")
+            self.log_message(f"Client error: {e}")
             self.client_running = False
 
     def show_peer_selection_dialog(self, payload):
@@ -574,7 +574,7 @@ class ClientGUI(tk.Tk):
     # ================== BUILD CLIENT UI ==================
     def create_widgets(self):
         # Thông tin client
-        info_frame = ttk.LabelFrame(self, text="📋 Client Info", style='Info.TLabelframe', padding=15)
+        info_frame = ttk.LabelFrame(self, text="Client Info", style='Info.TLabelframe', padding=15)
         info_frame.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
 
         ttk.Label(info_frame, text="Hostname:").grid(row=0, column=0, padx=5, pady=5, sticky="e")
@@ -598,12 +598,12 @@ class ClientGUI(tk.Tk):
         self.upload_port_entry.grid(row=1, column=3, padx=5, pady=5, sticky="w")
         
         # Add Start Client button
-        start_button = ttk.Button(info_frame, text="🚀 Start Client", 
+        start_button = ttk.Button(info_frame, text="Start Client", 
                                  command=self.start_client, style='Success.TButton')
         start_button.grid(row=2, column=0, columnspan=4, padx=5, pady=5, sticky="ew")
 
         # CLI commands cho client
-        cli_frame = ttk.LabelFrame(self, text="💻 Client CLI Commands", style='CLI.TLabelframe', padding=15)
+        cli_frame = ttk.LabelFrame(self, text="Client CLI Commands", style='CLI.TLabelframe', padding=15)
         cli_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
 
         # publish lname fname
@@ -618,7 +618,7 @@ class ClientGUI(tk.Tk):
         self.cli_lname_entry = ttk.Entry(lname_frame, width=25)
         self.cli_lname_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
         
-        browse_button = ttk.Button(lname_frame, text="📁 Browse", 
+        browse_button = ttk.Button(lname_frame, text="Browse", 
                                    command=self.on_browse_local_file,
                                    style='Primary.TButton', width=10)
         browse_button.pack(side=tk.RIGHT, padx=(5, 0))
@@ -629,7 +629,7 @@ class ClientGUI(tk.Tk):
         self.cli_fname_entry = ttk.Entry(cli_frame, width=25)
         self.cli_fname_entry.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
 
-        publish_button = ttk.Button(cli_frame, text="📤 Publish File", 
+        publish_button = ttk.Button(cli_frame, text="Publish File", 
                                     command=self.on_publish_cli, style='Success.TButton')
         publish_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 
@@ -640,100 +640,32 @@ class ClientGUI(tk.Tk):
         self.cli_fetch_fname_entry = ttk.Entry(cli_frame, width=25)
         self.cli_fetch_fname_entry.grid(row=3, column=1, padx=5, pady=5, sticky="ew")
 
-        fetch_button = ttk.Button(cli_frame, text="📥 Fetch File", 
+        fetch_button = ttk.Button(cli_frame, text="Fetch File", 
                                  command=self.on_fetch_cli, style='Success.TButton')
         fetch_button.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 
         # list peers, list files, exit
         list_peers_button = ttk.Button(
-            cli_frame, text="👥 List Peers", command=self.on_list_peers_cli, 
+            cli_frame, text="List Peers", command=self.on_list_peers_cli, 
             style='Primary.TButton'
         )
         list_peers_button.grid(row=5, column=0, padx=5, pady=5, sticky="ew")
 
         list_files_button = ttk.Button(
-            cli_frame, text="📂 List Files", command=self.on_list_files_cli,
+            cli_frame, text="List Files", command=self.on_list_files_cli,
             style='Primary.TButton'
         )
         list_files_button.grid(row=5, column=1, padx=5, pady=5, sticky="ew")
 
-        exit_button = ttk.Button(cli_frame, text="🚪 Exit", command=self.on_exit_client,
+        exit_button = ttk.Button(cli_frame, text="Exit", command=self.on_exit_client,
                                 style='Danger.TButton')
         exit_button.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 
         cli_frame.columnconfigure(1, weight=1)
 
-        # Core methods (dạng API nội bộ)
-        core_frame = ttk.LabelFrame(self, text="⚙️ Client Core Methods", style='Core.TLabelframe', padding=15)
-        core_frame.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
-
-        ttk.Button(
-            core_frame, text="📝 Publish File Info", command=self.on_publish_file_info,
-            style='Success.TButton'
-        ).grid(row=0, column=0, padx=5, pady=5, sticky="ew")
-
-        ttk.Button(
-            core_frame, text="⬇️ Download from Peer", command=self.on_download_from_peer,
-            style='Success.TButton'
-        ).grid(row=1, column=0, padx=5, pady=5, sticky="ew")
-
-        ttk.Button(
-            core_frame, text="👥 List Peers", command=self.on_list_peers_core,
-            style='Warning.TButton'
-        ).grid(row=2, column=0, padx=5, pady=5, sticky="ew")
-
-        ttk.Button(
-            core_frame, text="📂 List Files", command=self.on_list_files_core,
-            style='Warning.TButton'
-        ).grid(row=3, column=0, padx=5, pady=5, sticky="ew")
-
-        core_frame.columnconfigure(0, weight=1)
-
-        # Peers online
-        peers_frame = ttk.LabelFrame(self, text="👥 Peers Online", style='Info.TLabelframe', padding=10)
-        peers_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
-
-        self.peers_tree = ttk.Treeview(
-            peers_frame,
-            columns=("hostname", "ip", "port", "status"),
-            show="headings",
-            height=8,
-        )
-        self.peers_tree.heading("hostname", text="Hostname")
-        self.peers_tree.heading("ip", text="IP")
-        self.peers_tree.heading("port", text="Upload Port")
-        self.peers_tree.heading("status", text="Status")
-
-        self.peers_tree.column("hostname", width=100)
-        self.peers_tree.column("ip", width=100)
-        self.peers_tree.column("port", width=90)
-        self.peers_tree.column("status", width=80)
-
-        self.peers_tree.pack(fill="both", expand=True)
-
-        # Files available to download / local
-        files_frame = ttk.LabelFrame(self, text="📁 Files Available / Local Repository", 
-                                     style='CLI.TLabelframe', padding=10)
-        files_frame.grid(row=2, column=1, padx=10, pady=10, sticky="nsew")
-
-        self.client_files_tree = ttk.Treeview(
-            files_frame,
-            columns=("fname", "location", "is_local"),
-            show="headings",
-            height=8,
-        )
-        self.client_files_tree.heading("fname", text="Filename")
-        self.client_files_tree.heading("location", text="Location / Owner")
-        self.client_files_tree.heading("is_local", text="Local?")
-
-        self.client_files_tree.column("fname", width=150)
-        self.client_files_tree.column("location", width=120)
-        self.client_files_tree.column("is_local", width=60)
-
-        self.client_files_tree.pack(fill="both", expand=True)
 
         # Log client
-        log_frame = ttk.LabelFrame(self, text="📊 Client Log", style='Core.TLabelframe', padding=10)
+        log_frame = ttk.LabelFrame(self, text="Client Log", style='Core.TLabelframe', padding=10)
         log_frame.grid(row=3, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
 
         self.log_text = ScrolledText(log_frame, height=8, state="normal",
